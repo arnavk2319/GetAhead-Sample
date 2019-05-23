@@ -4,16 +4,26 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUpFragment extends Fragment {
 
@@ -22,23 +32,30 @@ public class SignUpFragment extends Fragment {
 
     private Spinner country, states;
 
+    Button signUpButton;
+
     RadioButton nickNameRadioButton;
     LinearLayout linearLayout;
     private String[] countries, canada, america;
+
+    private SwipeRefreshLayout swipeRefresh2;
+
+    FirebaseFirestore db;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
-        View view =inflater.inflate(R.layout.sign_up_fragment,container,false);
-
+        final View view =inflater.inflate(R.layout.sign_up_fragment,container,false);
 
         countries = getResources().getStringArray(R.array.country_arrays);
         canada = getResources().getStringArray(R.array.canada);
         america = getResources().getStringArray(R.array.america);
 
+        swipeRefresh2 = view.findViewById(R.id.pullToRefresh2);
+
+        db = FirebaseFirestore.getInstance();
 
         createAccountTextView = view.findViewById(R.id.headingTextView);
         passwordTextView = view.findViewById(R.id.passwordText);
@@ -50,12 +67,13 @@ public class SignUpFragment extends Fragment {
         nickNameEditText = view.findViewById(R.id.nickNameEditText);
         emailEditText = view.findViewById(R.id.emailEditText);
         passwordEditText = view.findViewById(R.id.passwordEditText);
-
-
         phoneNum = view.findViewById(R.id.edtTxt_phoneNumber);
         pinCode = view.findViewById(R.id.edtTxt_pinCode);
+
         country = view.findViewById(R.id.spin_country);
         states = view.findViewById(R.id.spin_province);
+
+        signUpButton = view.findViewById(R.id.signUpButton);
 
         nickNameRadioButton = view.findViewById(R.id.nicknameRadioButton);
 
@@ -63,6 +81,68 @@ public class SignUpFragment extends Fragment {
         linearLayout.setElevation((float)15.0);
 
         updateCountrySpinnerItems();
+
+        DocumentReference reference = db.collection("users").document("static_page");
+        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                DocumentSnapshot documentSnapshot = task.getResult();
+                fullNameEditText.setHint(documentSnapshot.get("name_hint").toString());
+                nickNameEditText.setHint(documentSnapshot.get("nickname_hint").toString());
+                emailEditText.setHint(documentSnapshot.get("universityEmail_hint").toString());
+                passwordEditText.setHint(documentSnapshot.get("password_hint").toString());
+                phoneNum.setHint(documentSnapshot.get("phone_hint").toString());
+                pinCode.setHint(documentSnapshot.get("pincode_hint").toString());
+                signUpButton.setText(documentSnapshot.get("signUp_button").toString());
+                createAccountTextView.setText(documentSnapshot.get("page_heading").toString());
+                nickNameRadioButton.setText(documentSnapshot.get("radioButton_nickname").toString());
+
+                Toast.makeText(getContext(),"Success:Fetching info",Toast.LENGTH_LONG).show();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(),"Error:Fetching",Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+
+        swipeRefresh2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                DocumentReference reference = db.collection("users").document("static_page");
+                reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        fullNameEditText.setHint(documentSnapshot.get("name_hint").toString());
+                        nickNameEditText.setHint(documentSnapshot.get("nickname_hint").toString());
+                        emailEditText.setHint(documentSnapshot.get("universityEmail_hint").toString());
+                        passwordEditText.setHint(documentSnapshot.get("password_hint").toString());
+                        phoneNum.setHint(documentSnapshot.get("phone_hint").toString());
+                        pinCode.setHint(documentSnapshot.get("pincode_hint").toString());
+                        signUpButton.setText(documentSnapshot.get("signUp_button").toString());
+                        createAccountTextView.setText(documentSnapshot.get("page_heading").toString());
+                        nickNameRadioButton.setText(documentSnapshot.get("radioButton_nickname").toString());
+
+                        Toast.makeText(getContext(),"Success:Fetching",Toast.LENGTH_LONG).show();
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),"Error:Fetching",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                swipeRefresh2.setRefreshing(false);
+
+            }
+        });
         
         return view;
 

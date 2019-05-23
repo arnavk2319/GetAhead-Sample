@@ -22,7 +22,6 @@ public class SignInFragment extends Fragment {
 
     TextView pageTitle, contentTitle, contentDetails, contentURL, contentNumber;
 
-
     private SwipeRefreshLayout swipeRefresh;
 
     FirebaseFirestore db;
@@ -43,6 +42,31 @@ public class SignInFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.pullToRefresh);
 
         db = FirebaseFirestore.getInstance();
+
+        DocumentReference reference = db.collection("users").document("static_page");
+        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if (task.isSuccessful()) {
+                    DocumentSnapshot snapshot = task.getResult();
+                    pageTitle.setText(snapshot.get("page_title").toString());
+                    contentTitle.setText(snapshot.get("content_title").toString());
+                    contentDetails.setText(snapshot.get("content_details").toString());
+                    contentURL.setText(snapshot.get("content_url").toString());
+                    contentNumber.setText(snapshot.get("content_number").toString());
+
+                    Toast.makeText(getContext(), "success : FETCHING account", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), "error : FETCHING", Toast.LENGTH_LONG).show();
+            }
+        });
+
 
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -76,9 +100,6 @@ public class SignInFragment extends Fragment {
                 swipeRefresh.setRefreshing(false);
             }
         });
-
-
-
 
         return view;
 

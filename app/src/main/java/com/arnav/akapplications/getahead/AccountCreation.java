@@ -1,11 +1,20 @@
 package com.arnav.akapplications.getahead;
 
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AccountCreation extends AppCompatActivity {
 
@@ -16,6 +25,8 @@ public class AccountCreation extends AppCompatActivity {
 
     public Toolbar toolbar;
 
+    FirebaseFirestore db;
+
 
 
     @Override
@@ -24,6 +35,8 @@ public class AccountCreation extends AppCompatActivity {
         setContentView(R.layout.activity_account_creation);
 
 //        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        db = FirebaseFirestore.getInstance();
 
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
@@ -58,6 +71,26 @@ public class AccountCreation extends AppCompatActivity {
 
             }
         });
+
+        DocumentReference reference = db.collection("users").document("static_page");
+        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                DocumentSnapshot documentSnapshot = task.getResult();
+                tabLayout.getTabAt(0).setText(documentSnapshot.get("info_tab").toString());
+                tabLayout.getTabAt(1).setText(documentSnapshot.get("accountCreation_tab").toString());
+
+                Toast.makeText(getApplicationContext(),"Success:Fetching tab",Toast.LENGTH_LONG).show();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(),"Error:Fetching",Toast.LENGTH_LONG).show();
+            }
+        });
+
 
 //        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 //            @Override
