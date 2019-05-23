@@ -98,6 +98,11 @@ public class SignUpFragment extends Fragment {
                 createAccountTextView.setText(documentSnapshot.get("page_heading").toString());
                 nickNameRadioButton.setText(documentSnapshot.get("radioButton_nickname").toString());
 
+                passwordTextView.setText(documentSnapshot.get("password_text").toString());
+                capitalTextView.setText(documentSnapshot.get("capitalLetter_text").toString());
+                numberTextView.setText(documentSnapshot.get("number_text").toString());
+                eightCharTextView.setText(documentSnapshot.get("eightChar_text").toString());
+
                 Toast.makeText(getContext(),"Success:Fetching info",Toast.LENGTH_LONG).show();
 
             }
@@ -128,6 +133,11 @@ public class SignUpFragment extends Fragment {
                         signUpButton.setText(documentSnapshot.get("signUp_button").toString());
                         createAccountTextView.setText(documentSnapshot.get("page_heading").toString());
                         nickNameRadioButton.setText(documentSnapshot.get("radioButton_nickname").toString());
+
+                        passwordTextView.setText(documentSnapshot.get("password_text").toString());
+                        capitalTextView.setText(documentSnapshot.get("capitalLetter_text").toString());
+                        numberTextView.setText(documentSnapshot.get("number_text").toString());
+                        eightCharTextView.setText(documentSnapshot.get("eightChar_text").toString());
 
                         Toast.makeText(getContext(),"Success:Fetching",Toast.LENGTH_LONG).show();
 
